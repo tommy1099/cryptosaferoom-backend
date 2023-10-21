@@ -118,8 +118,8 @@
     "yallist": "^4.0.0"
   },
   "scripts": {
-    "start": "nodemon app.js",
-    "fsevents": "npm install --no-optional"
+    "startNodemon": "nodemon app.js",
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",
