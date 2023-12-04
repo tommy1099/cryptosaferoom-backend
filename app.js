@@ -213,21 +213,42 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
-
 const db = mongoose.connection;
 const path = require("path");
-
+const cron = require("node-cron");
+const signalRoutes = require("./Routes/SignalsRoutes/SignalsRoutes");
+const newsRoutes = require("./Routes/NewsRoute/NewsRoute");
+const imagesRoutes = require("./Routes/ImageRoute/ImageRoute");
+const userSignup = require("./Routes/Auth/SignupRoute/SignupRoute");
+const userLogin = require("./Routes/Auth/LoginRoute/LoginRoute");
+const planRoute = require("./Routes/PlansRoute/PlansRoute");
+const tokenRefresh = require("./Routes/Token/TokenRefresh/TokenRefresh");
+const userROute = require("./Routes/UserRoute/UserRoute");
+const SubscriptionReducer = require("./Utils/SubscriptionReducer/SubscriptionReducer");
+const orders = require("./Routes/OrdersRoute/OrdersRoute");
 const corsOptions = {
   origin: "*", // Replace with your allowed origin (or "*" for any origin)
-  methods: ["GET", "POST", "DELETE", "OPTION", "PUT"],
+  methods: ["GET", "POST", "DELETE", "OPTIONS", "PUT"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
-
+// Schedule the cron job to run at midnight every day
+cron.schedule("0 0 * * *", () => {
+  SubscriptionReducer();
+});
+// Schedule the cron job to run every minute
+// cron.schedule("* * * * *", () => {
+//   SubscriptionReducer();
+// });
 app.use(cors(corsOptions));
 app.use(express.json());
-
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 mongoose.connect(
-  "mongodb+srv://tommy:1099@hacker-man.mqkqw8a.mongodb.net/CryptoSafeRoom"
+  // "mongodb+srv://tommy:1099@hacker-man.mqkqw8a.mongodb.net/CryptoSafeRoom"
+  "mongodb://root:8cxqQh4LXCIpDoyhhRBHdm9w@grace.iran.liara.ir:32267/cryptosaferoom?authSource=admin&replicaSet=rs0&directConnection=true&tls=false"
 );
 
 db.on("error", (error) => console.log(error));
@@ -236,15 +257,15 @@ db.once("open", () => console.log("Connected to DB"));
 // Static file serving
 app.use(express.static(path.join(__dirname, "Public")));
 
-// Import routes
-const signalRoutes = require("./Routes/SignalsRoutes/SignalsRoutes");
-const newsRoutes = require("./Routes/NewsRoute/NewsRoute");
-const imagesRoutes = require("./Routes/ImageRoute/ImageRoute");
-
 // Use routes
-app.use("/admin/dashboard/signals", signalRoutes);
-app.use("/admin/dashboard/news", newsRoutes);
+app.use("/signals", signalRoutes);
+app.use("/news", newsRoutes);
 app.use("/images", imagesRoutes);
-
-const PORT = process.env.PORT || 4444;
+app.use("/auth/signup", userSignup);
+app.use("/auth/login", userLogin);
+app.use("/plans", planRoute);
+app.use("/user", userROute);
+app.use("/token", tokenRefresh);
+app.use("/orders", orders);
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

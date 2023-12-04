@@ -2,47 +2,59 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema({
   img: {
     type: String,
-    require: true,
+    required: true,
   },
   crypto: {
     type: String,
-    require: true,
+    required: true,
   },
   desc: {
     desc1: {
       type: String,
-      require: true,
+      required: true,
     },
     desc2: {
       type: String,
-      require: true,
+      required: true,
     },
     desc3: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   tags: {
     tag1: {
       type: String,
-      require: true,
+      required: true,
     },
     tag2: {
       type: String,
-      require: true,
+      required: true,
     },
   },
-  expire: {
-    type: Number,
-    require: true,
+  vip: {
+    type: Boolean,
+    required: true,
   },
   blur: {
     type: Boolean,
-    require: true,
+    required: true,
   },
   state: {
     type: Boolean,
-    require: true,
+    required: true,
+  },
+  tp: {
+    tp1: Boolean,
+    tp2: Boolean,
+    tp3: Boolean,
+  },
+  entryPoint: String,
+  alertDesc: String,
+  tpPrices: {
+    tp1Price: String,
+    tp2Price: String,
+    tp3Price: String,
   },
 });
 

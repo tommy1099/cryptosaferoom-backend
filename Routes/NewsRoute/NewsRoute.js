@@ -4,6 +4,7 @@ const multer = require("multer");
 const NEWSDB = require("../../Models/NewsModel");
 const fs = require("fs");
 const path = require("path");
+const { backendAddress } = require("../../Utils/Addresses/Addresses");
 
 // Initialize the multer storage and upload objects as before
 const uploadsDirectory = "./Public/news";
@@ -37,7 +38,7 @@ router.post("/create", upload.single("img"), async (req, res) => {
     const newItem = new NEWSDB({
       title: title,
       desc: { desc1: desc1 },
-      img: `http://localhost:4444/news/${req.file.filename}`,
+      img: `${backendAddress()}/news/${req.file.filename}`,
     });
 
     const savedItem = await newItem.save();
@@ -52,7 +53,7 @@ router.put("/imgUpdate/:itemId", upload.single("img"), async (req, res) => {
   const itemId = req.params.itemId;
 
   try {
-    const updatedImgPath = `http://localhost:4444/images/${req.file.filename}`; //fgsdfsf
+    const updatedImgPath = `${backendAddress()}/images/${req.file.filename}`; //fgsdfsf
 
     const updatedItem = await NEWSDB.findByIdAndUpdate(
       itemId,
@@ -117,7 +118,7 @@ router.delete("/delete/:itemId", async (req, res) => {
 
     // Delete the image file from the storage
     const imagePath = path.join(
-      "Public/news",
+      "public/news",
       itemToDelete.img.split("/").pop()
     );
     fs.unlink(imagePath, (err) => {
