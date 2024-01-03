@@ -11,6 +11,10 @@ const Schema = mongoose.Schema({
   email: {
     confirm: { type: Boolean },
     email: { type: String, required: true },
+    emailToken: {
+      confirmationToken: String,
+      isUsedToken: Boolean,
+    },
   },
   plan: {
     remaining: Number,
@@ -68,6 +72,7 @@ const Schema = mongoose.Schema({
     type: String,
     required: true,
   },
+  ban: Boolean,
 });
 
 module.exports = mongoose.model("users", Schema);

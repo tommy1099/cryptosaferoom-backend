@@ -32,49 +32,57 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/create", upload.single("img"), async (req, res) => {
-  try {
-    const { title, desc1 } = req.body;
-    const newItem = new NEWSDB({
-      title: title,
-      desc: { desc1: desc1 },
-      img: `${backendAddress()}/news/${req.file.filename}`,
-    });
+router.post(
+  "/admin/dashboard/news/create",
+  upload.single("img"),
+  async (req, res) => {
+    try {
+      const { title, desc1 } = req.body;
+      const newItem = new NEWSDB({
+        title: title,
+        desc: { desc1: desc1 },
+        img: `${backendAddress()}/news/${req.file.filename}`,
+      });
 
-    const savedItem = await newItem.save();
-    res.status(201).json(savedItem);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
-});
-
-router.put("/imgUpdate/:itemId", upload.single("img"), async (req, res) => {
-  const itemId = req.params.itemId;
-
-  try {
-    const updatedImgPath = `${backendAddress()}/images/${req.file.filename}`; //fgsdfsf
-
-    const updatedItem = await NEWSDB.findByIdAndUpdate(
-      itemId,
-      { img: updatedImgPath },
-      { new: true }
-    );
-
-    if (!updatedItem) {
-      return res.status(404).json({ message: "Item not found" });
+      const savedItem = await newItem.save();
+      res.status(201).json(savedItem);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
     }
-
-    res
-      .status(200)
-      .json({ message: "Item updated successfully", item: updatedItem });
-  } catch (error) {
-    console.error("Error updating item:", error);
-    res.status(500).json({ error: "Internal Server Error" });
   }
-});
+);
 
-router.put("/bodyUpdate/:itemId", async (req, res) => {
+router.put(
+  "/admin/dashboard/news/imgUpdate/:itemId",
+  upload.single("img"),
+  async (req, res) => {
+    const itemId = req.params.itemId;
+
+    try {
+      const updatedImgPath = `${backendAddress()}/images/${req.file.filename}`; //fgsdfsf
+
+      const updatedItem = await NEWSDB.findByIdAndUpdate(
+        itemId,
+        { img: updatedImgPath },
+        { new: true }
+      );
+
+      if (!updatedItem) {
+        return res.status(404).json({ message: "Item not found" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Item updated successfully", item: updatedItem });
+    } catch (error) {
+      console.error("Error updating item:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+router.put("/admin/dashboard/news/bodyUpdate/:itemId", async (req, res) => {
   const itemId = req.params.itemId;
   const { desc1, title } = req.body;
   try {
@@ -105,7 +113,7 @@ router.put("/bodyUpdate/:itemId", async (req, res) => {
   }
 });
 
-router.delete("/delete/:itemId", async (req, res) => {
+router.delete("/admin/dashboard/news/delete/:itemId", async (req, res) => {
   const itemId = req.params.itemId;
   console.log("itemId:", itemId);
 

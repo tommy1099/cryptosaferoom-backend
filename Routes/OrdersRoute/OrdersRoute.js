@@ -198,5 +198,26 @@ router.post("/completed/:id", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+router.post("/done/:itemId", verifyToken, isAdmin, async (req, res) => {
+  const itemId = req.params.itemId;
+  console.log("itemId:", itemId);
+  try {
+    // Find the item first to get the image path
+    const order = await ORDERSDB.findById(itemId);
+    if (!order) {
+      return res.status(404).json({ message: "order not found" });
+    }
+    console.log("order:", order);
+    // Delete the item from the database
+    order.done = true;
 
+    await order.save();
+    res.status(200).json({ message: "order done successfully" });
+  } catch (error) {
+    console.error("Error order Done:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error, couldnt delete the User" });
+  }
+});
 module.exports = router;

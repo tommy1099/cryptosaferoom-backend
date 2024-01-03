@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const USERDB = require("../../Models/UsersModel");
 // Secret key for signing and verifying tokens
 const secretKey = "cryptosaferoom";
 
@@ -41,8 +41,43 @@ function verifyToken(req, res, next) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 }
+// Function to issue an access token with single use
+function issueSingleUseToken(payload) {
+  return jwt.sign(payload, secretKey);
+}
 
+// Middleware to verify a single-use token and mark it as used
+async function verifyAndMarkAsUsedToken(req, res, next) {
+  const paramToken = req.params.token;
+
+  try {
+    const user = await USERDB.findOne({
+      "email.email": req.params.email,
+      "email.emailToken.confirmationToken": paramToken,
+      "email.emailToken.isUsedToken": false,
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid or used token" });
+    }
+
+    const payload = jwt.verify(paramToken, secretKey);
+
+    // Mark the token as used
+    user.email.emailToken.isUsedToken = true;
+    await user.save();
+
+    // Attach the payload to the request for later use
+    req.user = payload;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+}
 module.exports = {
+  issueSingleUseToken,
+  verifyAndMarkAsUsedToken,
   issueAccessToken,
   issueRefreshToken,
   verifyToken,

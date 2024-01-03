@@ -41,7 +41,14 @@ router.post("/create", async (req, res) => {
     const user = new USERDB({
       username: username,
       password: await Encryptor(password),
-      email: { email: email, confirm: false },
+      email: {
+        email: email,
+        confirm: false,
+        emailToken: {
+          confirmationToken: "",
+          isUsedToken: false,
+        },
+      },
       plan: {
         remaining: 0,
         maxDays: 0,
@@ -54,6 +61,7 @@ router.post("/create", async (req, res) => {
       lastname: "",
       orders: [],
       role: "basic",
+      ban: false,
     });
     const savedItem = await user.save();
 

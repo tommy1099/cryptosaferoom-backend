@@ -3,14 +3,19 @@ const USERDB = require("../../../Models/UsersModel");
 const router = express.Router();
 const Dencryptor = require("../../../Utils/Decryptor/Decryptor");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const upload = multer(); // initialize multer
+
 // const verifyToken = require("../../../Middlewares/JWT/JWTMiddleware");
 const {
   issueAccessToken,
   issueRefreshToken,
-  verifyToken,
 } = require("../../Token/TokenIssuer");
+const isBan = require("../../../Middlewares/isBan");
 require("dotenv").config();
-router.post("/", async (req, res) => {
+router.post("/", isBan, upload.none(), async (req, res) => {
+  console.log("here!");
+
   try {
     const { password, email } = req.body;
     const user = await USERDB.findOne({ "email.email": email });

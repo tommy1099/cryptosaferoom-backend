@@ -27,21 +27,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get("/all", async (req, res) => {
-  try {
-    const signals = await SIGNALDB.find();
-    console.log(signals);
-    res.json(signals);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-router.get("/", verifyToken, async (req, res) => {
+router.get("/all", verifyToken, async (req, res) => {
   try {
     const signals = await SIGNALDB.find();
     const user = await USERDB.findById(req.user._id);
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.plan.type === "VIP") {
       signals.forEach((signal) => (signal.vip = false));
     }
     res.status(200).json(signals);
@@ -50,7 +40,46 @@ router.get("/", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Internal Server Error blah blah blah" });
   }
 });
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Get the requested page number
+    const perPage = parseInt(req.query.perPage) || 14; // Set a default or get the requested items per page
+    const startIndex = (page - 1) * perPage;
+    const endIndex = page * perPage;
 
+    const signals = await SIGNALDB.find({ blur: true })
+      .skip(startIndex)
+      .limit(perPage);
+    const allSignals = await SIGNALDB.find();
+    const user = await USERDB.findById(req.user._id);
+    if (user.role === "admin") {
+      signals.forEach((signal) => (signal.vip = false));
+    }
+
+    const result = {
+      signals: signals,
+      pageInfo: {
+        currentPage: page,
+        totalPages: Math.ceil(allSignals.length / perPage),
+      },
+    };
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching signals:", error);
+    res.status(500).json({ error: "Internal Server Error blah blah blah" });
+  }
+});
+router.get("/home", async (req, res) => {
+  try {
+    const signals = await SIGNALDB.find();
+    signals.forEach((signal) => (signal.blur = true));
+    res.status(200).json(signals);
+  } catch (error) {
+    console.error("Error fetching signals:", error);
+    res.status(500).json({ error: "Internal Server Error blah blah blah" });
+  }
+});
 //only admin can do this
 router.post(
   "/create",
@@ -73,7 +102,6 @@ router.post(
         tp2Price,
         tp3Price,
       } = req.body;
-      console.log("new Signal:", req.body);
 
       // Set default value for entryPoint if it's undefined
       const defaultEntryPoint = entryPoint || "now";
@@ -302,7 +330,6 @@ router.put("/bodyUpdate/:itemId", verifyToken, isAdmin, async (req, res) => {
 //only admin can do this
 router.delete("/delete/:itemId", verifyToken, isAdmin, async (req, res) => {
   const itemId = req.params.itemId;
-  console.log("itemId:", itemId);
   try {
     // Find the item first to get the image path
     const itemToDelete = await SIGNALDB.findById(itemId);

@@ -7,6 +7,11 @@ async function SubscriptionReducer() {
     // Decrease the subscription period of the user by 1 day
     user.plan.remaining -= 1;
     if (user.plan.remaining < 0) user.plan.remaining = 0;
+    if (user.plan.remaining <= 0) {
+      user.plan.type = "free";
+    } else {
+      user.plan.type = "VIP";
+    }
     user.save();
   });
 }

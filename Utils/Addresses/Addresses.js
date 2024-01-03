@@ -1,7 +1,7 @@
 const backendAddress = () => {
-  return "https://csrbackend.ir";
+  return "http://localhost:3000";
 };
 const frontendAddress = () => {
-  return "http://localhost:5173";
+  return "http://192.168.1.38:5173";
 };
 module.exports = { backendAddress, frontendAddress };
